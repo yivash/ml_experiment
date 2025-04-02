@@ -180,6 +180,7 @@ cython_debug/
 /logs
 *.csv
 *json
+*html
 
 # Models
 *.pkl
