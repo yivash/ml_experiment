@@ -16,7 +16,8 @@ dependencies = [
     "lightgbm (==4.5.0)",
     "dvc (>=3.33.3, <3.59)",
     "dvc-gdrive (>=3.0.1,<4.0.0)",
-    "pyopenssl (>=25.0.0,<26.0.0)"
+    "pyopenssl (>=25.0.0,<26.0.0)",
+    "xgboost (>=3.0.0,<4.0.0)"
 ]
 
 [tool.poetry]
