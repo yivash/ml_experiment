@@ -184,3 +184,7 @@ cython_debug/
 
 # Models
 *.pkl
+/dvclive
+/models
+/cv_results
+/results
