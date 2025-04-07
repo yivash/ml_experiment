@@ -32,7 +32,9 @@ if __name__ == "__main__":
 
     DATA_PATH = params["predict"]["data_path"]
     MODEL_PATH = params["predict"]["model_path"]
+    MODEL_NAME = params["predict"]["model_name"]
     RESULTS_PATH = params["predict"]["results_path"]
+    REFIT = params["predict"]["refit"]
 
     os.makedirs(RESULTS_PATH, exist_ok=True)
 
@@ -40,8 +42,21 @@ if __name__ == "__main__":
     df_test = pd.read_csv(f"{DATA_PATH}/test_data.csv")
     df_test["obs"] = df_test["obs"].astype(int)
     # Load model and read features
-    model = joblib.load(f"{MODEL_PATH}/rf_model.pkl")
-    features = model.feature_names_in_
+    model = joblib.load(f"{MODEL_PATH}/{MODEL_NAME}_model.pkl")
+    if MODEL_NAME == "catboost":    
+        features = model.feature_names_ 
+    else:
+        features = model.feature_names_in_
+
+    if REFIT:
+        data1 = pd.read_csv("data/processed/training_data_fs.csv")
+        data2 = pd.read_csv("data/processed/validation_data_fs.csv")
+        data = pd.concat([data1, data2], ignore_index=True)
+        data["salary_category_num"] = data["salary_category"].map({"High": 2, "Medium": 1, "Low": 0})
+        X = data[features]
+        y = data["salary_category_num"]
+        model.fit(X, y)
+        joblib.dump(model, f"{MODEL_PATH}/{MODEL_NAME}_model_refit.pkl")
 
     prediction = model.predict(df_test[features])
     df_test["salary_category"] = prediction
@@ -50,4 +65,9 @@ if __name__ == "__main__":
     df_test = df_test[["obs", "salary_category"]].reset_index(drop=True)
     df_test.sort_values(by="obs", ascending=True, inplace=True)
     df_test = df_test.reset_index(drop=True)
-    df_test.to_csv(f"{RESULTS_PATH}/{run_timestamp}_rf_model_results.csv", index=False)
+    df_test.to_csv(f"{RESULTS_PATH}/{run_timestamp}_{MODEL_NAME}_results.csv", index=False)
+
+
+
+ 
+
