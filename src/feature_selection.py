@@ -7,7 +7,8 @@ from sklearn.feature_selection import chi2
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectKBest, mutual_info_classif,f_classif, RFE
+from sklearn.ensemble import RandomForestClassifier
 from utils import load_params
 
 """ 
@@ -42,6 +43,7 @@ if __name__ == "__main__":
     DATA_INPUT_PATH = params["feature_selection"]["data_input_path"]
     DATA_OUTPUT_PATH = params["feature_selection"]["data_output_path"]
     N_FEATURES = params["feature_selection"]["number"]
+    METHOD = params["feature_selection"]["method"]
 
     os.makedirs(DATA_OUTPUT_PATH, exist_ok=True)
 
@@ -52,14 +54,21 @@ if __name__ == "__main__":
     X = df.drop(columns=["obs", "salary_category_num", "salary_category"])
     y = df["salary_category_num"]
     
-    selector = SelectKBest(score_func=chi2, k=N_FEATURES)
-    feature_names = X.columns
-    #fit = selector.fit(X_fs, y)
-    X_new = selector.fit_transform(X, y)
+    if METHOD == "f_classif":
+        selector = SelectKBest(score_func=f_classif, k=N_FEATURES)
+        feature_names = X.columns
+        #fit = selector.fit(X_fs, y)
+        X_new = selector.fit_transform(X, y)
+        # Get selected feature names
+        selected_features = feature_names[selector.get_support()]
+    
+    elif METHOD == "rfe":
+        model = RandomForestClassifier(random_state=42)
+        selector = RFE(model, n_features_to_select=N_FEATURES)
+        selector = selector.fit(X, y)
+        selected_features = X.columns[selector.support_]
 
-    # Get selected feature names
-    selected_features = feature_names[selector.get_support()]
-    logging.info(f"{N_FEATURES} Selected features: {selected_features}")
+    logging.info(f"{N_FEATURES}, {METHOD}, selected features: {selected_features}")
     df_output = df[selected_features]
     df_output['salary_category'] = df['salary_category']
     df_output.to_csv(f"{DATA_OUTPUT_PATH}/training_data_fs.csv", index=False) #f'../data/processed/training_data_fs.csv', index=False)
@@ -67,3 +76,5 @@ if __name__ == "__main__":
     df_valid_output = df_valid[selected_features]
     df_valid_output['salary_category'] = df_valid['salary_category']
     df_valid_output.to_csv(f"{DATA_OUTPUT_PATH}/validation_data_fs.csv", index=False) #(f'../data/processed/validation_data_fs.csv', index=False)
+
+
