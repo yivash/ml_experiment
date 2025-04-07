@@ -3,6 +3,7 @@ import numpy as np
 import logging
 import os
 import pandas as pd 
+from sklearn.decomposition import PCA
 from sklearn.feature_selection import chi2
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import MinMaxScaler
@@ -47,14 +48,18 @@ if __name__ == "__main__":
     os.makedirs(OUTPUT_DATA_PATH, exist_ok=True)
 
     # Read train and test data
-    train_data = pd.read_csv(f"{INPUT_DATA_PATH}/train.csv")
-    test_data = pd.read_csv(f"{INPUT_DATA_PATH}/test.csv")
+    train_data = pd.read_csv(f"{INPUT_DATA_PATH}/train.csv", parse_dates=["job_posted_date"])
+    test_data = pd.read_csv(f"{INPUT_DATA_PATH}/test.csv", parse_dates=["job_posted_date"])
+
+    # Create month column
+    train_data["month"] = train_data["job_posted_date"].dt.month
+    test_data["month"] = test_data["job_posted_date"].dt.month
 
     # Drop timestamp column ("job_posted_date")
     train_data.drop(columns=["job_posted_date"], inplace=True)
     test_data.drop(columns=["job_posted_date"], inplace=True)
 
-    # Impute missing values
+    # IMPUTATION
     train_data['job_state'] = train_data['job_state'].fillna(train_data['job_state'].mode()[0])
     test_data['job_state'] = test_data['job_state'].fillna(test_data['job_state'].mode()[0])
 
@@ -62,6 +67,17 @@ if __name__ == "__main__":
     num_cols = train_data.select_dtypes(include=['int64', 'float64']).columns
     train_data[num_cols] = imputer.fit_transform(train_data[num_cols])
     test_data[num_cols] = imputer.transform(test_data[num_cols])
+    
+    # FEATURE ENGINEERING
+    # One-hot encode feature_1
+    train_data['feature_1_enc'] = train_data['feature_1']
+    test_data['feature_1_enc'] = test_data['feature_1']
+    train_data = pd.get_dummies(train_data, columns=["feature_1_enc"], drop_first=True)
+    test_data = pd.get_dummies(test_data, columns=["feature_1_enc"], drop_first=True)
+
+    # Create new feature 
+    train_data['feat_2_mul_feat_10'] = train_data['feature_2'] * train_data['feature_10']
+    test_data['feat_2_mul_feat_10'] = test_data['feature_2'] * test_data['feature_10']
 
     # Target encode categorical features
     train_data['salary_category_num'] = train_data['salary_category'].map({'High': 2, 'Medium': 1, 'Low':0})
@@ -73,15 +89,37 @@ if __name__ == "__main__":
         test_data[feature] = test_data[feature].map(mapping)
     
     # Transform boolean features
-    for col in [col for col in train_data.columns if train_data[col].dtype == 'bool']:
+    bool_cols = [col for col in train_data.columns if train_data[col].dtype == 'bool']
+    for col in bool_cols:
         train_data[col] = train_data[col].map({True: 1, False: 0})
         test_data[col] = test_data[col].map({True: 1, False: 0})
+    train_data['Boolean_sum'] = train_data[bool_cols].sum(axis=1)
+    test_data['Boolean_sum'] = test_data[bool_cols].sum(axis=1)
+
+    # Add PCA transformed features
+    pca = PCA(n_components=2, random_state=1)
+    feat_vectorized_jd = [col for col in train_data.columns if 'job_desc' in col]
+    train_pca = pca.fit_transform(train_data[feat_vectorized_jd])
+    test_pca = pca.fit_transform(test_data[feat_vectorized_jd])
+
+    # Add PCA components to train data
+    train_data['pca_1'] = train_pca[:, 0]
+    train_data['pca_2'] = train_pca[:, 1]
+    # Add PCA components to test data
+    test_data['pca_1'] = test_pca[:, 0]
+    test_data['pca_2'] = test_pca[:, 1]
+
+    train_data['job_desc_mean'] = np.mean(train_data[feat_vectorized_jd], axis=1)
+    train_data['job_desc_std'] = np.std(train_data[feat_vectorized_jd], axis=1)
+    test_data['job_desc_mean'] = np.mean(test_data[feat_vectorized_jd], axis=1)
+    test_data['job_desc_std'] = np.std(test_data[feat_vectorized_jd], axis=1)
 
     # Scale numerical features
-    features_to_scale = [col for col in train_data.columns if 'job_desc' in col]
-    scaler = MinMaxScaler()
-    train_data[features_to_scale] = scaler.fit_transform(train_data[features_to_scale])
-    test_data[features_to_scale] = scaler.transform(test_data[features_to_scale])
+    # features_to_scale = [col for col in train_data.columns if 'job_desc' in col] + ['pca_1', 'pca_2', 'pca_3'] 
+    # scaler = MinMaxScaler()
+    # train_data[features_to_scale] = scaler.fit_transform(train_data[features_to_scale])
+    # test_data[features_to_scale] = scaler.transform(test_data[features_to_scale])
+
 
     # Split train data into train and validation sets
     df_train, df_validation = train_test_split(
@@ -97,4 +135,7 @@ if __name__ == "__main__":
     df_validation.to_csv(f"{OUTPUT_DATA_PATH}/validation_data.csv", index=False)
     test_data.to_csv(f"{OUTPUT_DATA_PATH}/test_data.csv", index=False)
 
-    logging.info("Data preparation completed and saved to 'processed' folder.")
+    logging.info(f"Data preparation completed and saved to {OUTPUT_DATA_PATH} folder.")
+
+
+
