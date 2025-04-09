@@ -9,6 +9,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 
 from utils import load_params
@@ -104,7 +105,6 @@ if __name__ == "__main__":
                     'min_child_weight': [1, 2, 3]
                 }
 
-
         # Initialize RandomizedSearchCV
         search = RandomizedSearchCV(
             estimator=model,
@@ -169,6 +169,43 @@ if __name__ == "__main__":
         joblib.dump(model, f"{MODEL_PATH}/{MODEL_NAME}_model.pkl")
         y_pred = model.predict(X_valid)
         features = X_train.columns
+    
+    elif MODEL_NAME == "lightgbm":
+        # Initialize the model
+        model = LGBMClassifier(random_state=42)
+
+        # Set up parameter grid for RandomizedSearchCV
+        param_grid = {
+            "n_estimators": [80, 100, 120],  # Number of trees
+            # "max_depth": [-1, 3, 4, 5, 6],  # Depth of trees
+            "min_child_samples": [5, 10, 20],  # Minimum samples at a leaf node
+        }
+
+        # Initialize RandomizedSearchCV
+        search = RandomizedSearchCV(
+            estimator=model,
+            param_distributions=param_grid,
+            n_iter=100,
+            cv=5,
+            verbose=2,
+            random_state=1,
+            n_jobs=-1,
+            scoring="accuracy",
+        )
+
+        # Fit the model
+        search.fit(X_train, y_train)
+
+        # Get the best model
+        best_model = search.best_estimator_
+
+        # Make predictions on validation set
+        y_pred = best_model.predict(X_valid)
+        
+        features = best_model.feature_names_in_
+        joblib.dump(best_model, f"{MODEL_PATH}/{MODEL_NAME}_model.pkl")
+        pd.DataFrame(search.cv_results_).to_csv(f"{CV_RESULTS_PATH}/cv_results_{MODEL_NAME}.csv", index=False)
+    
 
     # Log the results
     logging.info(f"Best parameters: {search.best_params_}")
@@ -197,5 +234,3 @@ if __name__ == "__main__":
     json.dump(obj=metrics, fp=open(f"{CV_RESULTS_PATH}/metrics.json", "w"), indent=4)
 
  
-
-
