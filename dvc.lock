@@ -52,31 +52,31 @@ stages:
       params.yaml:
         train_evaluate.cv_results_path: cv_results/
         train_evaluate.data_path: data/processed
-        train_evaluate.model_name: random_forest
+        train_evaluate.model_name: xgboost
         train_evaluate.model_path: models/
     outs:
     - path: cv_results
       hash: md5
-      md5: 17a487b93a3065e1eccfc4a82daf67a8.dir
-      size: 32325
+      md5: 4ce6ccf5ff93e3e2a64421d1f73f3b4a.dir
+      size: 32832
       nfiles: 6
     - path: models
       hash: md5
-      md5: 8fd639c5b7f8845b7a32b8949c08d264.dir
-      size: 2517585
+      md5: e1099387c34074bab3ec61576bcd53fe.dir
+      size: 671576
       nfiles: 1
   predict:
     cmd: python src/predict.py --config=params.yaml
     deps:
     - path: cv_results
       hash: md5
-      md5: 17a487b93a3065e1eccfc4a82daf67a8.dir
-      size: 32325
+      md5: 4ce6ccf5ff93e3e2a64421d1f73f3b4a.dir
+      size: 32832
       nfiles: 6
     - path: models
       hash: md5
-      md5: 8fd639c5b7f8845b7a32b8949c08d264.dir
-      size: 2517585
+      md5: e1099387c34074bab3ec61576bcd53fe.dir
+      size: 671576
       nfiles: 1
     - path: src/predict.py
       hash: md5
@@ -85,13 +85,13 @@ stages:
     params:
       params.yaml:
         predict.data_path: data/interim
-        predict.model_name: random_forest
+        predict.model_name: xgboost
         predict.model_path: models/
         predict.refit: false
         predict.results_path: results/
     outs:
     - path: results
       hash: md5
-      md5: 54f10a71b1f69992a4cd4c011bec6fa3.dir
-      size: 8743
+      md5: df9008af1fb8362e1648251f932c397d.dir
+      size: 8728
       nfiles: 1

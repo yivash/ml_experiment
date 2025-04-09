@@ -11,12 +11,12 @@ feature_selection:
 train_evaluate:
   data_path: data/processed
   model_path: models/
-  model_name: random_forest
+  model_name: xgboost
   cv_results_path: cv_results/
 
 predict:
   data_path: data/interim
   refit: False
   model_path: models/
-  model_name: random_forest
+  model_name: xgboost
   results_path: results/
