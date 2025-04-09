@@ -1,0 +1,22 @@
+data_prep:
+  input_data_path: data
+  output_data_path: data/interim
+
+feature_selection:
+  number: 12
+  method: rfe
+  data_input_path: data/interim
+  data_output_path: data/processed
+
+train_evaluate:
+  data_path: data/processed
+  model_path: models/
+  model_name: random_forest
+  cv_results_path: cv_results/
+
+predict:
+  data_path: data/interim
+  refit: False
+  model_path: models/
+  model_name: random_forest
+  results_path: results/

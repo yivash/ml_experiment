@@ -88,7 +88,3 @@ if __name__ == "__main__":
     df_valid_output['salary_category'] = df_valid['salary_category']
     df_valid_output.to_csv(f"{DATA_OUTPUT_PATH}/validation_data_fs.csv", index=False) #(f'../data/processed/validation_data_fs.csv', index=False)
 
-
-
-
- 

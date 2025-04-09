@@ -1,0 +1,58 @@
+ # Type dvc-help in this file and hit enter to get more information on how the extension can help to setup pipelines
+stages:
+  data_prep:
+    cmd: python src/data_preparation.py --config=params.yaml
+    deps:
+    - src/data_preparation.py
+    params:
+    - data_prep.input_data_path
+    - data_prep.output_data_path
+    outs:
+    - data/interim
+
+  feature_selection:
+    cmd: python src/feature_selection.py --config=params.yaml
+    deps:
+    - src/feature_selection.py
+    params:
+    - feature_selection.number
+    - feature_selection.method
+    - feature_selection.data_input_path
+    - feature_selection.data_output_path
+    outs:
+    - data/processed
+
+  train_evaluate:
+    cmd: python src/train_evaluate.py --config=params.yaml
+    deps:
+    - src/train_evaluate.py
+    - data/processed  # <-- This makes train_evaluate rerun if feature_selection changes!
+    params:
+    - train_evaluate.data_path
+    - train_evaluate.model_path
+    - train_evaluate.model_name
+    - train_evaluate.cv_results_path
+    outs:
+    - models
+    - cv_results
+
+  predict:
+    cmd: python src/predict.py --config=params.yaml
+    deps:
+    - src/predict.py
+    - models
+    - cv_results
+    params:
+    - predict.data_path
+    - predict.refit
+    - predict.model_path
+    - predict.model_name
+    - predict.results_path
+    outs:
+    - results
+
+metrics:
+- cv_results/metrics.json
+plots:
+- cv_results/plots/metrics:
+    x: step

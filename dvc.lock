@@ -1,0 +1,97 @@
+schema: '2.0'
+stages:
+  data_prep:
+    cmd: python src/data_preparation.py --config=params.yaml
+    deps:
+    - path: src/data_preparation.py
+      hash: md5
+      md5: 007b4ec82a031f3bbce29fd8e49b66f9
+      size: 6060
+    params:
+      params.yaml:
+        data_prep.input_data_path: data
+        data_prep.output_data_path: data/interim
+    outs:
+    - path: data/interim
+      hash: md5
+      md5: 35085e75ba9fe5abecac696e927fc1a5.dir
+      size: 11598274
+      nfiles: 3
+  feature_selection:
+    cmd: python src/feature_selection.py --config=params.yaml
+    deps:
+    - path: src/feature_selection.py
+      hash: md5
+      md5: 6d8a80d2ebb9d72bb25c0cbc218fc712
+      size: 3811
+    params:
+      params.yaml:
+        feature_selection.data_input_path: data/interim
+        feature_selection.data_output_path: data/processed
+        feature_selection.method: rfe
+        feature_selection.number: 12
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 9022aad9b09e822846ddb450e7668850.dir
+      size: 250379
+      nfiles: 2
+  train_evaluate:
+    cmd: python src/train_evaluate.py --config=params.yaml
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 9022aad9b09e822846ddb450e7668850.dir
+      size: 250379
+      nfiles: 2
+    - path: src/train_evaluate.py
+      hash: md5
+      md5: 74db92b0af964cbe9741d3fa682aa019
+      size: 8722
+    params:
+      params.yaml:
+        train_evaluate.cv_results_path: cv_results/
+        train_evaluate.data_path: data/processed
+        train_evaluate.model_name: random_forest
+        train_evaluate.model_path: models/
+    outs:
+    - path: cv_results
+      hash: md5
+      md5: 17a487b93a3065e1eccfc4a82daf67a8.dir
+      size: 32325
+      nfiles: 6
+    - path: models
+      hash: md5
+      md5: 8fd639c5b7f8845b7a32b8949c08d264.dir
+      size: 2517585
+      nfiles: 1
+  predict:
+    cmd: python src/predict.py --config=params.yaml
+    deps:
+    - path: cv_results
+      hash: md5
+      md5: 17a487b93a3065e1eccfc4a82daf67a8.dir
+      size: 32325
+      nfiles: 6
+    - path: models
+      hash: md5
+      md5: 8fd639c5b7f8845b7a32b8949c08d264.dir
+      size: 2517585
+      nfiles: 1
+    - path: src/predict.py
+      hash: md5
+      md5: a726992fc6ed6e47bf7ba4334255ce66
+      size: 2501
+    params:
+      params.yaml:
+        predict.data_path: data/interim
+        predict.model_name: random_forest
+        predict.model_path: models/
+        predict.refit: false
+        predict.results_path: results/
+    outs:
+    - path: results
+      hash: md5
+      md5: 54f10a71b1f69992a4cd4c011bec6fa3.dir
+      size: 8743
+      nfiles: 1
