@@ -1,0 +1,7 @@
+{
+    "model": "xgboost",
+    "accuracy": 0.703125,
+    "f1-score": 0.7042706864232605,
+    "selected_features": "feature_2, job_desc_003, job_desc_049, job_desc_135, job_desc_147, job_desc_174, job_desc_187, job_desc_198, job_desc_244, job_desc_275, job_desc_286, feat_2_mul_feat_10",
+    "best_params": "{'n_estimators': 120, 'min_child_weight': 2, 'max_depth': 6, 'colsample_bytree': 0.6}"
+}
