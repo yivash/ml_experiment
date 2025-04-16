@@ -179,12 +179,12 @@ cython_debug/
 /images
 /logs
 *.csv
-*json
+#*json
 *html
 
 # Models
 #*.pkl
 /dvclive
 #/models
-/cv_results
+#/cv_results
 /results
