@@ -56,3 +56,10 @@ metrics:
 plots:
 - cv_results/plots/metrics:
     x: step
+artifacts:
+  xgboost_model:
+    path: models/xgboost_model.pkl
+    desc: XGBoost model with 12 features selected with RFE algorithm
+    type: model
+    labels:
+    - classification
