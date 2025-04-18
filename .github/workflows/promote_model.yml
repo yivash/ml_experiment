@@ -1,0 +1,57 @@
+name: Sync Prod Model to Main Branch
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Parse GTO tag
+      id: gto
+      uses: iterative/gto-action@v2
+
+    outputs:
+      event: ${{ steps.gto.outputs.event }}
+      stage: ${{ steps.gto.outputs.stage }}
+      version: ${{ steps.gto.outputs.version }}
+      name: ${{ steps.gto.outputs.name }}
+
+  sync-models:
+    needs: parse
+    if: ${{ needs.parse.outputs.event == 'assignment' && needs.parse.outputs.stage == 'prod' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout tagged version branch
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ needs.parse.outputs.version }}
+        path: tagged-branch
+
+    - name: Checkout main branch
+      uses: actions/checkout@v3
+      with:
+        ref: main
+        path: main-branch
+        fetch-depth: 0
+
+    - name: Copy model files from tagged branch to main
+      run: |
+        cp -r tagged-branch/models/* main-branch/models/
+
+    - name: Commit and push to main
+      working-directory: main-branch
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add models/
+        git commit -m "Update models from prod tag ${{ needs.parse.outputs.version }}"
+        git push origin main
