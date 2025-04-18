@@ -59,7 +59,4 @@ plots:
 artifacts:
   random_forest_model:
     path: models/random_forest_model.pkl
-    desc: Random Forest model using 12 features selected with  RFE
     type: model
-    labels:
-    - classification
