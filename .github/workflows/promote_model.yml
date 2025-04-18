@@ -53,6 +53,14 @@ jobs:
       run: |
         cp -r tagged-branch/models/* main-branch/models/
     
+    - name: Debug contents after copy
+      run: |
+        echo "🔎 Checking main-branch/models/..."
+        ls -lh main-branch/models/
+        echo "🔎 Git status:"
+        git -C main-branch status
+
+    
     - name: Commit and push to main
       working-directory: main-branch
       run: |
