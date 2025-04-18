@@ -1,4 +1,4 @@
-name: Sync Prod Model to master Branch
+name: Sync Prod Model to main Branch
 
 on:
   push:
@@ -36,22 +36,22 @@ jobs:
         ref: ${{ needs.parse.outputs.version }}
         path: tagged-branch
 
-    - name: Checkout master branch
+    - name: Checkout main branch
       uses: actions/checkout@v3
       with:
-        ref: master
-        path: master-branch
+        ref: main
+        path: main-branch
         fetch-depth: 0
 
-    - name: Copy model files from tagged branch to master
+    - name: Copy model files from tagged branch to main
       run: |
-        cp -r tagged-branch/models/* master-branch/models/
+        cp -r tagged-branch/models/* main-branch/models/
 
-    - name: Commit and push to master
-      working-directory: master-branch
+    - name: Commit and push to main
+      working-directory: main-branch
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
         git add models/
         git commit -m "Update models from prod tag ${{ needs.parse.outputs.version }}"
-        git push origin master
+        git push origin main
