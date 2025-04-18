@@ -33,7 +33,7 @@ jobs:
     - name: Checkout tagged version branch
       uses: actions/checkout@v3
       with:
-        ref: ${{ needs.parse.outputs.version }}
+        ref: ${{ needs.parse.outputs.commit }}
         path: tagged-branch
     
     - name: List contents of tagged-branch/models
