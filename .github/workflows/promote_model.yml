@@ -35,6 +35,12 @@ jobs:
       with:
         ref: ${{ needs.parse.outputs.version }}
         path: tagged-branch
+    
+    - name: List contents of tagged-branch/models
+      run: |
+        ls -l tagged-branch/models/
+        find tagged-branch/models/
+
 
     - name: Checkout main branch
       uses: actions/checkout@v3
@@ -46,7 +52,7 @@ jobs:
     - name: Copy model files from tagged branch to main
       run: |
         cp -r tagged-branch/models/* main-branch/models/
-
+    
     - name: Commit and push to main
       working-directory: main-branch
       run: |
