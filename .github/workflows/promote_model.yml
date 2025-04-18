@@ -3,7 +3,7 @@ name: Sync Prod Model to Main Branch
 on:
   push:
     tags:
-      - "*"
+      - "*#prod#*"
 
 permissions:
   contents: write
