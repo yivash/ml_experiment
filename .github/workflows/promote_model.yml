@@ -67,7 +67,7 @@ jobs:
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
         echo "🔎 Checking main-branch/models/..."
-        ls -lh main-branch/models/
+        ls -lh models/
         git add models/
         git commit -m "Update models from prod tag ${{ needs.parse.outputs.version }}"
         git push origin main
