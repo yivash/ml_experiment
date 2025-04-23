@@ -1,7 +1,0 @@
-{
-    "model": "random_forest",
-    "accuracy": 0.67578125,
-    "f1-score": 0.6696328820528736,
-    "selected_features": "feature_2, job_desc_003, job_desc_049, job_desc_135, job_desc_147, job_desc_174, job_desc_187, job_desc_198, job_desc_244, job_desc_275, job_desc_286, feat_2_mul_feat_10",
-    "best_params": "{'n_estimators': 70, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_depth': None}"
-}
