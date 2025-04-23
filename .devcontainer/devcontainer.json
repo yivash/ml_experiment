@@ -1,0 +1,57 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "Python 3",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
+	"features": {
+		"ghcr.io/devcontainers-extra/features/black:2": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-extra/features/flake8:2": {
+			"version": "latest",
+			"plugins": "flake8-black"
+		},
+		"ghcr.io/devcontainers-extra/features/poetry:2": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+			"moby": true,
+			"installDockerBuildx": true,
+			"installDockerComposeSwitch": true,
+			"version": "latest",
+			"dockerDashComposeVersion": "v2"
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "poetry config virtualenvs.create false && poetry install",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-azuretools.vscode-docker",
+				"ms-python.black-formatter",
+				"tamasfe.even-better-toml",
+				"ms-python.flake8",
+				"GitHub.copilot",
+				"ms-toolsai.jupyter",
+				"codezombiech.gitignore",
+				"janisdd.vscode-edit-csv",
+				"njpwerner.autodocstring",
+                "iterative.dvc"
+			]
+		}
+	},
+	"mounts": [
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.digihaul,target=/home/vscode/.digihaul,type=bind,consistency=cached"
+	],
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "root"
+}
