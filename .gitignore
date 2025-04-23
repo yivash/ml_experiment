@@ -183,8 +183,9 @@ cython_debug/
 *html
 
 # Models
-#*.pkl
+*.pkl
 /dvclive
-#/models
-#/cv_results
+/models
+cv_results/*
+!cv_results/metrics.json
 /results
