@@ -181,7 +181,7 @@ cython_debug/
 *.csv
 #*json
 *html
-.dvc/config
+.dvc/config.local
 
 # Models
 #*.pkl
